@@ -13,7 +13,7 @@ print(db_password)
 app = Flask(__name__)
 
 # MongoDB Connection
-mongo_client = MongoClient(f"mongodb+srv://{db_username}:{db_password}Q@assignment2.oat4h.mongodb.net/?retryWrites=true&w=majority&appName=Assignment2")
+mongo_client = MongoClient(f"mongodb+srv://{db_username}:{db_password}@assignment2.oat4h.mongodb.net/?retryWrites=true&w=majority&appName=Assignment2")
 db = mongo_client["app"]
 products_collection = db["products"]  
 
