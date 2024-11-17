@@ -1,11 +1,7 @@
 import pytest
-from app import app  # Import your Flask app
+from app import app # Import the Flask app
 from pymongo import MongoClient
-from dotenv import load_dotenv
 import os
-
-# Load environment variables from .env file
-load_dotenv()
 
 # Fixture for the Flask test client
 @pytest.fixture
@@ -17,8 +13,16 @@ def client():
 # Fixture for the MongoDB client
 @pytest.fixture
 def mongo_client():
+    # Load credentials from environment variables (set by GitHub Secrets)
+    db_username = os.getenv("DB_USERNAME")  # GitHub Secret
+    db_password = os.getenv("DB_PASSWORD")  # GitHub Secret
+    
+    # Check if MongoDB credentials are provided
+    if not db_username or not db_password:
+        raise ValueError("MongoDB credentials are not set in GitHub Secrets")
+    
     # Create a MongoDB client using credentials from environment variables
-    client = MongoClient(f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@assignment2.oat4h.mongodb.net/?retryWrites=true&w=majority&appName=Assignment2")
+    client = MongoClient(f"mongodb+srv://{db_username}:{db_password}@assignment2.oat4h.mongodb.net/?retryWrites=true&w=majority&appName=Assignment2")
     yield client
     client.close()
 
@@ -28,6 +32,8 @@ def db(mongo_client):
     # Access the database and collection
     db = mongo_client["app"]
     yield db
+    # Cleanup: Delete test data after each test
+    db.products.delete_many({"name": "Test Product"})  # Adjust as needed for other tests
 
 # Test 1: Invalid HTTP Method to Products Route
 def test_invalid_method_to_products(client):
